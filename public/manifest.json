@@ -1,0 +1,18 @@
+{
+  "name": "Comic Creator Studio - Comic Lab",
+  "short_name": "Comic Lab",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#0f172a",
+  "orientation": "any",
+  "description": "Crea spettacolari storie a fumetti animate con sintesi vocale e intelligenza artificiale.",
+  "icons": [
+    {
+      "src": "/app_icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

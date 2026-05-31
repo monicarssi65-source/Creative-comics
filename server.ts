@@ -16,6 +16,11 @@ app.use(express.json({ limit: '50mb' }));
 
 const PORT = 3000;
 
+// Serve the stunning Comic Lab PWA logo dynamically at the root URL
+app.get("/app_icon.png", (req: Request, res: Response) => {
+  res.sendFile(path.join(process.cwd(), "src/assets/images/app_icon_comic_lab_1780193039364.png"));
+});
+
 // Lazy initialization of GoogleGenAI to prevent crashing at startup if the key is missing
 let aiClient: GoogleGenAI | null = null;
 function getGeminiClient(): GoogleGenAI | null {

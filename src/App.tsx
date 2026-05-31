@@ -188,6 +188,40 @@ export default function App() {
     fetchStatus();
   }, []);
 
+  // Progressive Web App (PWA) installation states and triggers
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showPwaBanner, setShowPwaBanner] = useState<boolean>(() => {
+    try {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
+      return !isStandalone;
+    } catch {
+      return true;
+    }
+  });
+
+  useEffect(() => {
+    const handleBeforeInstall = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowPwaBanner(true);
+    };
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+    return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+  }, []);
+
+  const handleInstallPwa = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setShowPwaBanner(false);
+      }
+      setDeferredPrompt(null);
+    } else {
+      alert("Su iOS/iPhone/Safari:\n1. Premi il pulsante 'Condividi' (in basso o in alto, icona con freccia verso l'alto)\n2. Scorri l'elenco e tocca 'Aggiungi alla schermata Home'\n\nSu Android/Chrome:\nTocca i tre puntini in alto a destra e seleziona 'Aggiungi a schermata Home' o 'Installa app'.");
+    }
+  };
+
   // Firebase auth & Connection status flow
   useEffect(() => {
     // Validate Connection to Firestore (Skill Mandatory Check)
@@ -580,6 +614,43 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950">
       
+      {/* Dynamic PWA Install Banner (Option 2 - Installable Mobile App) */}
+      {showPwaBanner && (
+        <div className="bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 border-b border-amber-500/30 px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in z-50">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-gradient-to-tr from-amber-500/20 to-yellow-600/20 text-amber-400 rounded-xl border border-amber-500/30 flex-shrink-0 animate-pulse">
+              <Cloud className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white flex items-center gap-1.5 leading-tight">
+                Installa Comic Lab sul tuo Smartphone
+                <span className="text-[9px] bg-emerald-500/10 text-emerald-400 uppercase tracking-widest font-mono px-2 py-0.5 rounded-full border border-emerald-500/20">
+                  Novità PWA
+                </span>
+              </p>
+              <p className="text-xs text-slate-400">
+                Installa l'app direttamente sulla tua schermata Home per avviarla come un'app nativa (APK), con caricamento istantaneo e supporto offline!
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleInstallPwa}
+              className="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black px-4 py-2 rounded-xl transition shadow-lg active:scale-95 cursor-pointer flex items-center gap-1.5 uppercase tracking-wide"
+            >
+              <Sparkles className="w-4 h-4 text-slate-900" />
+              Installa Ora (APK Web)
+            </button>
+            <button
+              onClick={() => setShowPwaBanner(false)}
+              className="px-3.5 py-2 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition text-xs font-medium cursor-pointer"
+            >
+              Nascondi
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 1. Global Navigation Header */}
       <header className="px-6 py-4 bg-slate-900 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
