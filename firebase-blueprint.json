@@ -1,0 +1,101 @@
+{
+  "entities": {
+    "character": {
+      "title": "Character",
+      "description": "A custom or preset storyboard character archetype.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the character."
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name of the character."
+        },
+        "role": {
+          "type": "string",
+          "description": "Storytelling role of the character.",
+          "enum": ["Hero", "Sidekick", "Villain", "Narrator", "Neutral"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Character's backstory or description."
+        },
+        "appearance": {
+          "type": "string",
+          "description": "Specific visual details for image generation."
+        },
+        "avatarUrl": {
+          "type": "string",
+          "description": "URL or vector path for the character design."
+        },
+        "accentColor": {
+          "type": "string",
+          "description": "Theme color code (hex) linked with character tags."
+        },
+        "isPreset": {
+          "type": "boolean",
+          "description": "Whether the character is a pre-packaged default."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner userId."
+        }
+      },
+      "required": ["id", "name", "role", "description", "appearance", "avatarUrl", "accentColor"]
+    },
+    "comic": {
+      "title": "Comic",
+      "description": "A multi-panel completed comic script and layout sequence.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the comic book storyboard."
+        },
+        "title": {
+          "type": "string",
+          "description": "Fictional title of the comic project."
+        },
+        "description": {
+          "type": "string",
+          "description": "Synopsis or creative prompt story plot."
+        },
+        "style": {
+          "type": "string",
+          "description": "Aesthetic render style of illustrations.",
+          "enum": ["Manga", "Superhero", "Cartoon", "Noir", "Watercolor", "DigitalArt"]
+        },
+        "characters": {
+          "type": "array",
+          "description": "List of character IDs utilized in pages."
+        },
+        "panels": {
+          "type": "array",
+          "description": "A detailed sequence of visual panels, panels dialogs, placements, and captions."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date of initial story generation as localized string."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner userId."
+        }
+      },
+      "required": ["id", "title", "description", "style", "characters", "panels", "createdAt"]
+    }
+  },
+  "firestore": {
+    "characters": {
+      "schema": "character",
+      "description": "Saves and retrieves a user's roster of characters."
+    },
+    "comics": {
+      "schema": "comic",
+      "description": "Saves and retrieves a user's collection of storyboard comics."
+    }
+  }
+}

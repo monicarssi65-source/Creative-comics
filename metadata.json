@@ -1,0 +1,6 @@
+{
+  "name": "Comic Creator Studio",
+  "description": "An interactive web application to create complete comics, customize characters, generate panel artwork, build storyboards, add Web Audio sound effects and custom speech narration, and animate scenes with transitions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
