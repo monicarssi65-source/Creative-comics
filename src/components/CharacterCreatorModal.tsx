@@ -31,6 +31,33 @@ export default function CharacterCreatorModal({
   const [avatarUrl, setAvatarUrl] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState("");
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && (file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/jpg")) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result && typeof event.target.result === "string") {
+          setAvatarUrl(event.target.result);
+          setGenerationError("");
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Custom Voice states
   const [voiceAudioData, setVoiceAudioData] = useState<string | undefined>(undefined);
@@ -509,29 +536,63 @@ export default function CharacterCreatorModal({
               </div>
 
               {/* Avatar Preview */}
-              <div className="text-center">
+              <div className="flex flex-col items-center justify-center">
                 <div
-                  className="w-28 h-28 rounded-2xl border-2 flex items-center justify-center overflow-hidden bg-slate-900 shadow-lg"
-                  style={{ borderColor: accentColor }}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => document.getElementById("char-portrait-file-input")?.click()}
+                  className={`w-28 h-28 rounded-2xl border-2 flex flex-col items-center justify-center overflow-hidden bg-slate-950 shadow-lg relative cursor-pointer group transition-all duration-200 ${
+                    isDraggingFile ? "scale-105 border-emerald-500 bg-emerald-950/20" : ""
+                  }`}
+                  style={{ borderColor: isDraggingFile ? undefined : accentColor }}
+                  title="Trascina foto/JPG/PNG qui o fai click per sfogliare"
                 >
                   {avatarUrl ? (
-                    <img
-                      src={avatarUrl || null}
-                      alt="Avatar character"
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover"
-                    />
+                    <>
+                      <img
+                        src={avatarUrl || undefined}
+                        alt="Avatar character"
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover group-hover:opacity-30 transition-opacity"
+                      />
+                      <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 bg-slate-950/70 transition-opacity text-slate-200">
+                        <Upload className="w-5 h-5 text-amber-400 mb-1" />
+                        <span className="text-[10px] font-mono text-center font-bold">Cambia JPG/PNG</span>
+                      </div>
+                    </>
                   ) : (
-                    <div className="flex flex-col items-center justify-center text-slate-500 p-4">
-                      <Palette className="w-8 h-8 mb-1 animate-pulse" />
-                      <span className="text-[10px] font-mono">Nessun Ritratto</span>
+                    <div className="flex flex-col items-center justify-center text-slate-500 p-4 text-center group-hover:text-slate-350">
+                      <Upload className="w-7 h-7 mb-1 text-slate-400 group-hover:text-amber-400 transition-colors" />
+                      <span className="text-[9px] font-mono leading-tight">Click/Trascina JPG o PNG</span>
                     </div>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-400 mt-2">Anteprima Ritratto</p>
+                <input
+                  id="char-portrait-file-input"
+                  type="file"
+                  accept="image/png, image/jpeg, image/jpg"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        if (event.target?.result && typeof event.target.result === "string") {
+                          setAvatarUrl(event.target.result);
+                          setGenerationError("");
+                        }
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+                <p className="text-[10px] text-slate-400 mt-2 text-center uppercase tracking-wider font-mono">
+                  Standard JPG/PNG o drag & drop
+                </p>
               </div>
 
-              {/* Action Buttons to Generate */}
+              {/* Action Buttons to Generate / Upload */}
               <div className="w-full space-y-2">
                 <button
                   type="button"
@@ -541,6 +602,15 @@ export default function CharacterCreatorModal({
                 >
                   <Sparkles className="w-4 h-4" />
                   {isGenerating ? "Generazione AI..." : "Genera Ritratto AI"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => document.getElementById("char-portrait-file-input")?.click()}
+                  className="w-full py-2 px-3 text-xs font-bold rounded-xl border border-emerald-500/30 text-emerald-400 hover:bg-emerald-950/20 hover:border-emerald-500/60 flex items-center justify-center gap-1.5 transition uppercase"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  Carica Foto (JPG o PNG)
                 </button>
 
                 <button

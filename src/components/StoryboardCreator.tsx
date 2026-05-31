@@ -874,7 +874,7 @@ export default function StoryboardCreator({
                                   <select
                                     value={placement.pose}
                                     onChange={(e: any) => handleUpdateCharacterPlacement(char.id, { pose: e.target.value })}
-                                    className="w-full bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-slate-300"
+                                    className="w-full bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-slate-300 col-span-1"
                                   >
                                     <option value="Neutral">Neutro</option>
                                     <option value="Happy">Felice</option>
@@ -882,6 +882,12 @@ export default function StoryboardCreator({
                                     <option value="Fighting">Combattivo</option>
                                     <option value="Scared">Spaventato</option>
                                     <option value="Surprised">Sorpreso</option>
+                                    <option value="Running">In Corsa (Corre)</option>
+                                    <option value="Laughing">Felice Ridente (Ride)</option>
+                                    <option value="Jumping">In Salto (Salta)</option>
+                                    <option value="Crying">Triste (Piange)</option>
+                                    <option value="Thinking">Risoluto (Pensa)</option>
+                                    <option value="Sleeping">Addormentato (Dorme)</option>
                                   </select>
                                 </div>
 

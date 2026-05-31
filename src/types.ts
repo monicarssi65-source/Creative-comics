@@ -23,7 +23,7 @@ export interface Character {
 
 export interface PanelCharacterPlacement {
   characterId: string;
-  pose: "Neutral" | "Happy" | "Angry" | "Fighting" | "Scared" | "Surprised";
+  pose: "Neutral" | "Happy" | "Angry" | "Fighting" | "Scared" | "Surprised" | "Running" | "Laughing" | "Jumping" | "Crying" | "Thinking" | "Sleeping";
   positionX: number; // 0 to 100 percentage layout position
   scale: number; // e.g., 0.8, 1.0, 1.2
   animationType: "floating" | "bouncing" | "pulse" | "shaking" | "none";
