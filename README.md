@@ -1,51 +1,20 @@
-# Creative Comics Lab AI — v4.0
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-Crea fumetti animati con AI. Dati salvati **localmente** nel browser via IndexedDB.
+# Run and deploy your AI Studio app
 
-## Stack
+This contains everything you need to run your app locally.
 
-- **Frontend**: React 19 + TypeScript + Tailwind CSS 4
-- **Backend**: Express + Node.js (API Gemini)
-- **Persistenza**: IndexedDB (nessun Firebase, nessun cloud)
-- **AI**: Google Gemini (storyboard, immagini, TTS)
+View your app in AI Studio: https://ai.studio/apps/b86b9ffe-f01e-45ae-bf64-c5eef27a7c19
 
-## Avvio rapido
+## Run Locally
 
-```bash
-npm install
-cp .env.example .env        # Aggiungi la tua GEMINI_API_KEY
-npm run dev                 # http://localhost:3000
-```
+**Prerequisites:**  Node.js
 
-## Build produzione
 
-```bash
-npm run build
-npm start
-```
-
-## Struttura
-
-```
-src/
-├── App.tsx                 # Componente principale
-├── db/ComicsDB.ts          # Layer IndexedDB
-├── hooks/
-│   ├── useLocalDB.ts       # Hook CRUD + backup
-│   └── useToast.ts         # Notifiche toast
-├── components/             # UI components
-└── types.ts                # TypeScript types
-```
-
-## Backup dati
-
-Usa il pannello **"Dati"** nell'header per:
-- Scaricare un backup `.json` (include immagini base64)
-- Importare un backup precedente
-- Vedere lo spazio usato
-- Cancellare tutti i dati
-
-## CI/CD
-
-GitHub Actions esegue build + type check ad ogni push su `main`.
-Vedi `.github/workflows/build.yml`.
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`
