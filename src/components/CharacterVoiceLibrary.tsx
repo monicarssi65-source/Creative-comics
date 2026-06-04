@@ -15,12 +15,14 @@ interface CharacterVoiceLibraryProps {
   charactersList: Character[];
   onUpdateCharacter: (updated: Character) => Promise<void> | void;
   onOpenCreateModal: () => void;
+  onDeleteCharacter?: (id: string) => Promise<void> | void;
 }
 
 export default function CharacterVoiceLibrary({
   charactersList,
   onUpdateCharacter,
   onOpenCreateModal,
+  onDeleteCharacter,
 }: CharacterVoiceLibraryProps) {
   const [selectedCharId, setSelectedCharId] = useState<string>("");
   const [systemVoices, setSystemVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -414,18 +416,31 @@ export default function CharacterVoiceLibrary({
                   </div>
                 </div>
 
-                {/* Equalizer Wave design representation */}
-                <div className="flex items-end gap-1 px-4 py-2 bg-slate-950 rounded-2xl border border-slate-850 select-none w-40 justify-center h-16 shrink-0 relative overflow-hidden">
-                  {equalizerBars.map((val, idx) => (
-                    <div 
-                      key={idx}
-                      className="w-1 rounded-sm bg-gradient-to-t from-amber-500 to-yellow-450 transition-all duration-75 block"
-                      style={{ height: `${val}%` }}
-                    />
-                  ))}
-                  <div className="absolute top-1 inset-x-0 text-center text-[7.5px] font-mono tracking-widest text-slate-500 select-none uppercase">
-                    {isPlaying ? "ONDA VOCALE REALE" : "CONSOLLE SILENTE"}
+                {/* Equalizer Wave and Deletion Action representation */}
+                <div className="flex items-center gap-2">
+                  <div className="flex items-end gap-1 px-4 py-2 bg-slate-950 rounded-2xl border border-slate-850 select-none w-36 justify-center h-16 shrink-0 relative overflow-hidden">
+                    {equalizerBars.map((val, idx) => (
+                      <div 
+                        key={idx}
+                        className="w-1 rounded-sm bg-gradient-to-t from-amber-500 to-yellow-450 transition-all duration-75 block"
+                        style={{ height: `${val}%` }}
+                      />
+                    ))}
+                    <div className="absolute top-1 inset-x-0 text-center text-[7.5px] font-mono tracking-widest text-slate-500 select-none uppercase">
+                      {isPlaying ? "ONDA VOCALE REALE" : "CONSOLLE SILENTE"}
+                    </div>
                   </div>
+
+                  {onDeleteCharacter && (
+                    <button
+                      onClick={() => onDeleteCharacter(activeChar.id)}
+                      type="button"
+                      className="h-16 w-16 bg-slate-950 hover:bg-rose-950/40 text-slate-500 hover:text-rose-450 rounded-2xl border border-slate-850 hover:border-rose-900/60 transition cursor-pointer flex items-center justify-center relative group"
+                      title="Elimina definitivamente questo personaggio"
+                    >
+                      <Trash2 className="w-5 h-5 transition group-hover:scale-110" />
+                    </button>
+                  )}
                 </div>
               </div>
 

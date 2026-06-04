@@ -19,6 +19,7 @@ interface StoryboardCreatorProps {
   onUpdateComic: (updated: Comic) => void;
   charactersList: Character[];
   onOpenCharacterModal: () => void;
+  onDeleteCharacter?: (id: string) => Promise<void> | void;
 }
 
 export default function StoryboardCreator({
@@ -26,6 +27,7 @@ export default function StoryboardCreator({
   onUpdateComic,
   charactersList,
   onOpenCharacterModal,
+  onDeleteCharacter,
 }: StoryboardCreatorProps) {
   const [activePanelId, setActivePanelId] = useState<string | null>(
     comic.panels[0]?.id || null
@@ -842,29 +844,46 @@ export default function StoryboardCreator({
 
                       return (
                         <div key={char.id} className="p-3 bg-slate-950/40 border border-slate-800 rounded-xl space-y-2">
-                          <label className="flex items-center justify-between cursor-pointer">
-                            <span className="flex items-center gap-2">
+                          <div className="flex items-center justify-between">
+                            <label className="flex items-center gap-2 cursor-pointer flex-1 min-w-0">
                               <input
                                 type="checkbox"
                                 checked={isPresent}
                                 onChange={() => handleToggleCharacter(char.id)}
-                                className="rounded text-amber-500 border-slate-800 focus:ring-0 bg-slate-950 h-3.5 w-3.5"
+                                className="rounded text-amber-500 border-slate-800 focus:ring-0 bg-slate-950 h-3.5 w-3.5 shrink-0"
                               />
                               <img
                                 src={char.avatarUrl || null}
                                 alt=""
                                 referrerPolicy="no-referrer"
-                                className="w-5 h-5 rounded object-cover"
+                                className="w-5 h-5 rounded object-cover shrink-0"
                               />
-                              <span className="text-xs font-bold text-slate-300">{char.name}</span>
-                            </span>
-                            <span 
-                              className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded-full border"
-                              style={{ color: char.accentColor, borderColor: char.accentColor + '50' }}
-                            >
-                              {char.role}
-                            </span>
-                          </label>
+                              <span className="text-xs font-bold text-slate-300 truncate">{char.name}</span>
+                            </label>
+                            
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <span 
+                                className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded-full border"
+                                style={{ color: char.accentColor, borderColor: char.accentColor + '40', backgroundColor: char.accentColor + '10' }}
+                              >
+                                {char.role === "Hero" ? "Eroe" : char.role === "Villain" ? "Cattivo" : char.role === "Sidekick" ? "Spalla" : "Neutro"}
+                              </span>
+                              
+                              {onDeleteCharacter && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDeleteCharacter(char.id);
+                                  }}
+                                  className="p-1 hover:bg-rose-950 text-slate-500 hover:text-rose-450 rounded border border-transparent hover:border-rose-900 transition cursor-pointer"
+                                  title="Elimina definitivamente questo personaggio"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
 
                           {/* Render placements settings only when character toggle is checked */}
                           {isPresent && placement && (

@@ -469,6 +469,19 @@ export default function App() {
     }
   };
 
+  // Delete character from local context and database
+  const handleDeleteCharacter = async (charId: string) => {
+    const charToDelete = characters.find((c) => c.id === charId);
+    if (!charToDelete) return;
+    
+    if (confirm(`Sei sicuro di voler rimuovere definitivamente ${charToDelete.name} dalla galleria in memoria?`)) {
+      setCharacters(characters.filter((c) => c.id !== charId));
+      if (user) {
+        await deleteCharacterFromFirestore(charId);
+      }
+    }
+  };
+
   // Delete comic project
   const handleDeleteComic = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -996,6 +1009,7 @@ export default function App() {
                }
              }}
             onOpenCharacterModal={() => setIsCharModalOpen(true)}
+            onDeleteCharacter={handleDeleteCharacter}
           />
         ) : (
           // Standard Overview & Creation Dashboard
@@ -1055,6 +1069,7 @@ export default function App() {
                   setCharToEdit(null);
                   setIsCharModalOpen(true);
                 }}
+                onDeleteCharacter={handleDeleteCharacter}
               />
             ) : dashboardTab === "characters" ? (
               <div className="space-y-6">
@@ -1127,14 +1142,7 @@ export default function App() {
                               Modifica
                             </button>
                             <button
-                              onClick={async () => {
-                                if (confirm(`Sei sicuro di voler rimuovere definitivamente ${char.name} dalla galleria in memoria?`)) {
-                                  setCharacters(characters.filter((c) => c.id !== char.id));
-                                  if (user) {
-                                    await deleteCharacterFromFirestore(char.id);
-                                  }
-                                }
-                              }}
+                              onClick={() => handleDeleteCharacter(char.id)}
                               type="button"
                               className="p-1.5 bg-slate-950 hover:bg-rose-950 text-slate-500 hover:text-rose-400 rounded-lg border border-slate-850 hover:border-rose-900 transition cursor-pointer"
                               title="Rimuovi Personaggio"
