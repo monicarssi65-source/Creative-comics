@@ -401,7 +401,7 @@ function AppInner() {
       <main className="flex-1 max-w-screen-xl mx-auto w-full px-6 py-8">
 
         {isTheatreMode && activeComic ? (
-          <PlayComicTheatre comic={activeComic} charactersList={characters} onClose={() => setIsTheatreMode(false)} />
+          <PlayComicTheatre comic={activeComic} charactersList={characters} onExit={() => setIsTheatreMode(false)} />
 
         ) : isEditMode && activeComic ? (
           <div className="space-y-4">

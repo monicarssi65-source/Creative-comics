@@ -4,7 +4,7 @@
  * Gestisce init, load, save su IndexedDB — zero Firebase.
  */
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Comic, Character } from "../types";
 import {
   getAllComicsHydrated,
