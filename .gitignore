@@ -6,3 +6,11 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Capacitor Android (generato automaticamente dal workflow)
+android/
+!android/app/src/main/res/
+!android/app/src/main/AndroidManifest.xml
+
+# APK output
+apk-output/
