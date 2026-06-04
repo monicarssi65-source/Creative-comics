@@ -6,6 +6,7 @@
 import React, { useState, useRef } from "react";
 import { Comic, Panel, Character, PanelDialog, PanelCharacterPlacement } from "../types";
 import { audioEngine } from "./AudioEngine";
+import { apiFetch } from "../lib/api";
 import { 
   Sparkles, Image, Play, Trash2, Plus, Volume2, UserPlus, 
   HelpCircle, Settings, Quote, Smile, Move, Sliders, AlertCircle, RefreshCw,
@@ -244,7 +245,7 @@ export default function StoryboardCreator({
     setFeedbackMsg("Generazione dell'illustrazione in corso...");
 
     try {
-      const response = await fetch("/api/generate-panel-image", {
+      const response = await apiFetch("/api/generate-panel-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from "react";
 import { Character } from "../types";
 import { getCharacterAvatarSvg } from "./PredefinedCharacters";
+import { apiFetch } from "../lib/api";
 import { Sparkles, X, Palette, User, PenTool, ShieldAlert, Volume2, Play, Square, Upload, Trash2, Headphones } from "lucide-react";
 
 interface CharacterCreatorModalProps {
@@ -124,7 +125,7 @@ export default function CharacterCreatorModal({
     setGenerationError("");
 
     try {
-      const response = await fetch("/api/generate-character-image", {
+      const response = await apiFetch("/api/generate-character-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, appearance, style: currentStyle }),

@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Comic, Panel } from "../types";
 import { audioEngine } from "./AudioEngine";
+import { apiFetch } from "../lib/api";
 import { 
   Play, Pause, ArrowLeft, ArrowRight, Volume2, VolumeX, RotateCcw, 
   HelpCircle, Sparkles, AlertCircle, Headphones, Star
@@ -177,7 +178,7 @@ export default function PlayComicTheatre({
           if (item.role === "Villain") apiVoice = "Fenrir";
           if (item.role === "Sidekick") apiVoice = "Puck";
 
-          const response = await fetch("/api/narrate", {
+          const response = await apiFetch("/api/narrate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ text: item.text, voice: apiVoice }),

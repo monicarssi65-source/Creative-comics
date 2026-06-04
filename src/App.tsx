@@ -18,6 +18,7 @@ import {
   Sparkles, BookOpen, User as UserIcon, Plus, Film, Trash2, Edit3, Music, Volume2, 
   VolumeX, Headphones, Check, HelpCircle, Key, ChevronRight, Wand2, Info, Download, Cloud, LogOut
 } from "lucide-react";
+import { apiFetch, CUSTOM_KEY_STORAGE_NAME } from "./lib/api";
 import { auth, db, googleProvider, OperationType, handleFirestoreError } from "./firebase";
 import { onAuthStateChanged, signInWithPopup, signOut, User } from "firebase/auth";
 import { collection, doc, getDocs, setDoc, deleteDoc, query, where, getDocFromServer } from "firebase/firestore";
@@ -170,22 +171,29 @@ export default function App() {
     hasGeminiKey: false,
     message: "Verifica stato API in corso..."
   });
+  const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
+  const [tempApiKey, setTempApiKey] = useState("");
 
-  // Query server for Gemini API key status at launch
+  const fetchStatus = async () => {
+    try {
+      const response = await apiFetch("/api/status");
+      const data = await response.json();
+      setApiStatus({
+        hasGeminiKey: data.hasGeminiKey,
+        message: data.message
+      });
+    } catch (e) {
+      console.warn("Unable to check live API status:", e);
+    }
+  };
+
+  // Check status and prefill api key state on launch
   useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const response = await fetch("/api/status");
-        const data = await response.json();
-        setApiStatus({
-          hasGeminiKey: data.hasGeminiKey,
-          message: data.message
-        });
-      } catch (e) {
-        console.warn("Unable to check live API status:", e);
-      }
-    };
     fetchStatus();
+    const stored = localStorage.getItem(CUSTOM_KEY_STORAGE_NAME);
+    if (stored) {
+      setTempApiKey(stored);
+    }
   }, []);
 
   // Progressive Web App (PWA) installation states and triggers
@@ -518,7 +526,7 @@ export default function App() {
         selectedCharsForStory.includes(c.id)
       );
 
-      const response = await fetch("/api/generate-storyboard", {
+      const response = await apiFetch("/api/generate-storyboard", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -672,21 +680,24 @@ export default function App() {
 
         {/* Action Controls & API info indicators */}
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center bg-slate-950 border border-slate-800 rounded-full px-4 py-1.5 gap-2 text-xs">
+          <button
+            onClick={() => setIsKeyModalOpen(true)}
+            className="flex items-center bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 transition rounded-full px-4 py-1.5 gap-2 text-xs cursor-pointer active:scale-95 text-slate-300 hover:text-white"
+            title="Gestisci la chiave API Gemini"
+          >
             {apiStatus.hasGeminiKey ? (
               <>
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="font-mono text-emerald-400 text-[11px]">Sistemi AI Pronti</span>
+                <span className="font-mono text-emerald-400 text-[11px] font-bold">AI ATTIVA</span>
               </>
             ) : (
               <>
                 <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
-                <span className="font-mono text-cyan-400 text-[11px] hover:underline" title="Configura la chiave GEMINI_API_KEY nei Secrets per attivare i modelli Imagen ed audio narrati completi!">
-                  Demo Intelligente Attiva
-                </span>
+                <span className="font-mono text-cyan-400 text-[11px]">AI DEMO (click)</span>
               </>
             )}
-          </div>
+            <Key className="w-3.5 h-3.5 text-slate-500 ml-1" />
+          </button>
 
           <div className="relative">
             <button
@@ -1483,6 +1494,88 @@ export default function App() {
         comic={activeComic || comics[0]}
         charactersList={characters}
       />
+
+      {/* 7. Gemini API Key Configuration Fallback Modal */}
+      {isKeyModalOpen && (
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in animate-duration-200">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-amber-500 via-orange-600 to-yellow-500" />
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 bg-amber-500/10 text-amber-400 rounded-2xl border border-amber-500/20">
+                <Key className="w-5 h-5 animate-pulse" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-white uppercase tracking-wider">Chiave Gemini API</h3>
+                <p className="text-[11px] text-slate-450">Inserisci la tua chiave per sbloccare l'AI generativa.</p>
+              </div>
+            </div>
+            
+            <p className="text-xs text-slate-350 leading-relaxed font-sans mb-4">
+              L'app utilizza <strong>Gemini 3.5 Flash</strong> e <strong>Gemini 2.5 Image</strong> per creare capitoli di storie coerenti, disegnare illustrazioni ad alta definizione in tempo reale e sintetizzare file audio dei dialoghi.
+            </p>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest font-mono">
+                  Chiave API (GEMINI_API_KEY)
+                </label>
+                <div className="relative">
+                  <input
+                    type="password"
+                    placeholder="AIzaSy..."
+                    value={tempApiKey}
+                    onChange={(e) => setTempApiKey(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-amber-500 rounded-xl px-3 py-2.5 text-xs text-slate-200 placeholder-slate-600 font-mono transition outline-none"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-500 mt-1.5 font-mono leading-relaxed">
+                  * Verrà salvata in modo sicuro nel localStorage locale del tuo browser per tutte le richieste future.
+                </p>
+              </div>
+
+              {tempApiKey.trim() !== "" && (
+                <div className="text-[10px] bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 p-2.5 rounded-xl font-mono leading-snug">
+                  ✓ Nuova chiave inserita. Fai clic su 'Salva Chiave' per autenticare i sistemi.
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.setItem(CUSTOM_KEY_STORAGE_NAME, tempApiKey.trim());
+                    fetchStatus();
+                    setIsKeyModalOpen(false);
+                  }}
+                  className="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black py-2.5 rounded-xl transition uppercase cursor-pointer"
+                >
+                  Salva Chiave
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.removeItem(CUSTOM_KEY_STORAGE_NAME);
+                    setTempApiKey("");
+                    fetchStatus();
+                    setIsKeyModalOpen(false);
+                  }}
+                  className="px-3.5 py-2.5 bg-slate-850 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold rounded-xl border border-slate-800 transition uppercase cursor-pointer"
+                  title="Cancella la chiave salvata"
+                >
+                  Rimuovi
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsKeyModalOpen(false)}
+                  className="px-3.5 py-2.5 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition text-xs font-semibold uppercase cursor-pointer"
+                >
+                  Chiudi
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

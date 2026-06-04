@@ -21,29 +21,27 @@ app.get("/app_icon.png", (req: Request, res: Response) => {
   res.sendFile(path.join(process.cwd(), "src/assets/images/app_icon_comic_lab_1780193039364.png"));
 });
 
-// Lazy initialization of GoogleGenAI to prevent crashing at startup if the key is missing
-let aiClient: GoogleGenAI | null = null;
-function getGeminiClient(): GoogleGenAI | null {
-  if (!aiClient) {
-    const key = process.env.GEMINI_API_KEY;
-    if (key && key !== "MY_GEMINI_API_KEY") {
-      aiClient = new GoogleGenAI({
-        apiKey: key,
-        httpOptions: {
-          headers: {
-            'User-Agent': 'aistudio-build',
-          }
+// Dynamic retrieval of GoogleGenAI client to support custom fallback API Key
+function getGeminiClient(customKey?: string): GoogleGenAI | null {
+  const key = customKey || process.env.GEMINI_API_KEY;
+  if (key && key !== "MY_GEMINI_API_KEY" && key.trim() !== "") {
+    return new GoogleGenAI({
+      apiKey: key,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
         }
-      });
-    }
+      }
+    });
   }
-  return aiClient;
+  return null;
 }
 
 // 1. STORYTELLING BOARD GENERATION ENDPOINT
 app.post("/api/generate-storyboard", async (req: Request, res: Response): Promise<void> => {
   const { prompt, currentStyle, characters, panelsCount } = req.body;
-  const client = getGeminiClient();
+  const customKey = req.headers["x-gemini-key"] as string | undefined;
+  const client = getGeminiClient(customKey);
 
   if (!client) {
     // Graceful fallback when the user has not configured the key
@@ -143,7 +141,8 @@ Nota: Fornisci SOLO il JSON corrispondente allo schema indicato, niente frasi di
 // 2. CHARACTER AVATAR GENERATION
 app.post("/api/generate-character-image", async (req: Request, res: Response): Promise<void> => {
   const { name, appearance, style } = req.body;
-  const client = getGeminiClient();
+  const customKey = req.headers["x-gemini-key"] as string | undefined;
+  const client = getGeminiClient(customKey);
 
   if (!client) {
     res.json({
@@ -192,7 +191,8 @@ app.post("/api/generate-character-image", async (req: Request, res: Response): P
 // 3. COMIC PANEL GENERATION
 app.post("/api/generate-panel-image", async (req: Request, res: Response): Promise<void> => {
   const { sceneDescription, style } = req.body;
-  const client = getGeminiClient();
+  const customKey = req.headers["x-gemini-key"] as string | undefined;
+  const client = getGeminiClient(customKey);
 
   if (!client) {
     res.json({
@@ -241,7 +241,8 @@ app.post("/api/generate-panel-image", async (req: Request, res: Response): Promi
 // 4. TEXT TO SPEECH AUDIO NARRATION
 app.post("/api/narrate", async (req: Request, res: Response): Promise<void> => {
   const { text, voice } = req.body; // voice can be Puck, Charon, Kore, Fenrir, Zephyr
-  const client = getGeminiClient();
+  const customKey = req.headers["x-gemini-key"] as string | undefined;
+  const client = getGeminiClient(customKey);
 
   if (!client) {
     res.json({
@@ -284,7 +285,8 @@ app.post("/api/narrate", async (req: Request, res: Response): Promise<void> => {
 
 // 5. GET CONFIG/STATUS
 app.get("/api/status", (req: Request, res: Response) => {
-  const hasKey = !!process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "MY_GEMINI_API_KEY";
+  const customKey = req.headers["x-gemini-key"] as string | undefined;
+  const hasKey = (!!process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "MY_GEMINI_API_KEY") || (!!customKey && customKey.trim() !== "");
   res.json({
     active: true,
     hasGeminiKey: hasKey,
